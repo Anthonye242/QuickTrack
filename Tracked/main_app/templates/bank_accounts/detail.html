@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Bank Account Detail{% endblock %}
+
+{% block content %}
+<h1>{{ bank_account.name }}</h1>
+<p>Balance: {{ bank_account.balance }}</p>
+
+<h2>Transactions</h2>
+<ul>
+    {% for transaction in transactions %}
+        <li>
+            {{ transaction.date }}: {{ transaction.description }} - {{ transaction.amount }}
+            <a href="{% url 'transaction-update' transaction.id %}">Edit</a>
+            <a href="{% url 'transaction-delete' transaction.id %}">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<h2>Add New Transaction</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ transaction_form.as_p }}
+    <button type="submit">Add Transaction</button>
+</form>
+
+<a href="{% url 'bank-account-update' bank_account.id %}">Edit Account</a>
+<a href="{% url 'bank-account-delete' bank_account.id %}">Delete Account</a>
+{% endblock %}

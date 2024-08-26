@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Bank Accounts{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Bank Accounts</h2>
+    <a href="{% url 'bank-account-create' %}" class="btn">Create New Account</a>
+    <ul>
+        {% for account in bank_accounts %}
+            <li>
+                <a href="{% url 'bank-account-detail' account.id %}">{{ account.account_name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

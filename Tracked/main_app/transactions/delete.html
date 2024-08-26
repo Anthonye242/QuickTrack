@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Transaction{% endblock %}
+
+{% block content %}
+<h1>Are you sure you want to delete this transaction?</h1>
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">Delete Transaction</button>
+</form>
+<a href="{% url 'bank-account-detail' transaction.account.id %}">Cancel</a>
+{% endblock %}

@@ -1,5 +1,5 @@
 from django import forms
-from .models import BankAccount, Transaction, Budget, BudgetTransaction
+from .models import BankAccount, Transaction, Budget, BudgetTransaction, Expense
 
 class BankAccountForm(forms.ModelForm):
     class Meta:
@@ -20,3 +20,11 @@ class BudgetTransactionForm(forms.ModelForm):
     class Meta:
         model = BudgetTransaction
         fields = ['budget', 'transaction', 'amount']
+
+class ExpenseForm(forms.ModelForm):
+    class Meta:
+        model = Expense
+        fields = ['description', 'amount', 'category', 'date']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'})
+        }

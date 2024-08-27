@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Expenses{% endblock %}
+
+{% block content %}
+<h1>Your Expenses</h1>
+<a href="{% url 'expense-create' %}">Add New Expense</a>
+<ul>
+    {% for expense in expenses %}
+        <li>
+            {{ expense.date }}: {{ expense.description }} - {{ expense.amount }}
+            <a href="{% url 'expense-detail' expense.id %}">View</a>
+            <a href="{% url 'expense-update' expense.id %}">Edit</a>
+            <a href="{% url 'expense-delete' expense.id %}">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

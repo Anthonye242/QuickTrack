@@ -1,29 +1,59 @@
 {% extends 'base.html' %}
 
-{% block title %}Bank Account Detail{% endblock %}
-
 {% block content %}
 <h1>{{ bank_account.name }}</h1>
-<p>Balance: {{ bank_account.balance }}</p>
+
+<p><strong>Balance:</strong> {{ bank_account.balance }}</p>
+
+<div>
+    <a href="{% url 'transaction-create' %}?bank_account_id={{ bank_account.id }}" class="btn btn-primary">Add Transaction</a>
+    <a href="{% url 'expense-create' %}?bank_account_id={{ bank_account.id }}" class="btn btn-primary">Add Expense</a>
+    <a href="{% url 'budget-create' %}?bank_account_id={{ bank_account.id }}" class="btn btn-primary">Add Budget</a>
+</div>
 
 <h2>Transactions</h2>
-<ul>
-    {% for transaction in transactions %}
-        <li>
-            {{ transaction.date }}: {{ transaction.description }} - {{ transaction.amount }}
-            <a href="{% url 'transaction-update' transaction.id %}">Edit</a>
-            <a href="{% url 'transaction-delete' transaction.id %}">Delete</a>
-        </li>
-    {% endfor %}
-</ul>
+{% if bank_account.transactions.all %}
+    <ul>
+        {% for transaction in bank_account.transactions.all %}
+            <li>
+                {{ transaction.date }} - {{ transaction.description }}: {{ transaction.amount }}
+                <a href="{% url 'transaction-update' transaction.id %}">Edit</a>
+                <a href="{% url 'transaction-delete' transaction.id %}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No transactions available.</p>
+{% endif %}
 
-<h2>Add New Transaction</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ transaction_form.as_p }}
-    <button type="submit">Add Transaction</button>
-</form>
+<h2>Expenses</h2>
+{% if bank_account.expenses.all %}
+    <ul>
+        {% for expense in bank_account.expenses.all %}
+            <li>
+                {{ expense.date }} - {{ expense.description }}: {{ expense.amount }}
+                <a href="{% url 'expense-update' expense.id %}">Edit</a>
+                <a href="{% url 'expense-delete' expense.id %}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No expenses available.</p>
+{% endif %}
 
-<a href="{% url 'bank-account-update' bank_account.id %}">Edit Account</a>
-<a href="{% url 'bank-account-delete' bank_account.id %}">Delete Account</a>
+<h2>Budgets</h2>
+{% if bank_account.budgets.all %}
+    <ul>
+        {% for budget in bank_account.budgets.all %}
+            <li>
+                {{ budget.name }}: {{ budget.amount }} (From {{ budget.start_date }} to {{ budget.end_date }})
+                <a href="{% url 'budget-update' budget.id %}">Edit</a>
+                <a href="{% url 'budget-delete' budget.id %}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No budgets available.</p>
+{% endif %}
+
 {% endblock %}

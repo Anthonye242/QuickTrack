@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Budget Transaction{% endblock %}
+
+{% block content %}
+<h1>Update Budget Transaction</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Update Budget Transaction</button>
+</form>
+<a href="{% url 'budget-index' %}">Back to Budgets</a>
+{% endblock %}

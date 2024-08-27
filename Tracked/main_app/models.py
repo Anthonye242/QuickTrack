@@ -3,54 +3,44 @@ from django.contrib.auth.models import User
 
 class BankAccount(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    account_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=100)
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
 
     def __str__(self):
-        return self.account_name
+        return self.name
 
 class Transaction(models.Model):
-    account = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
-    transaction_type = models.CharField(max_length=10)  # 'income' or 'expense'
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    description = models.TextField(blank=True)
+    account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='transactions')
     date = models.DateField()
-
-    def __str__(self):
-        return f'{self.transaction_type} - {self.amount} on {self.date}'
-
-class Budget(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    budget_name = models.CharField(max_length=255)
+    description = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    start_date = models.DateField()
-    end_date = models.DateField()
-
-    def __str__(self):
-        return self.budget_name
-
-class BudgetTransaction(models.Model):
-    budget = models.ForeignKey(Budget, on_delete=models.CASCADE)
-    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def __str__(self):
-        return f'{self.budget} - {self.transaction}'
-
-class Expense(models.Model):
-    CATEGORY_CHOICES = [
-        ('Food', 'Food'),
-        ('Transport', 'Transport'),
-        ('Entertainment', 'Entertainment'),
-        ('Health', 'Health'),
-        ('Utilities', 'Utilities'),
-        ('Other', 'Other'),
-    ]
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    description = models.CharField(max_length=255)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    date = models.DateField()
+    transaction_type = models.CharField(max_length=20, choices=(('income', 'Income'), ('expense', 'Expense')))
 
     def __str__(self):
         return f"{self.description} - {self.amount}"
+
+class Budget(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='budgets')
+    name = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+class Expense(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.CharField(max_length=255)
+    date = models.DateField()
+
+    def __str__(self):
+        return f'{self.description} - {self.amount}'
+class BudgetTransaction(models.Model):
+    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='budget_transactions')
+    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='budget_transactions')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.budget.name} - {self.transaction.description}"

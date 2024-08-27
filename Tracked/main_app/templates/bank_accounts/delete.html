@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Delete Bank Account{% endblock %}
-
 {% block content %}
-<h1>Are you sure you want to delete {{ bank_account.name }}?</h1>
-<form method="POST">
+  <h1>Delete Bank Account</h1>
+  <p>Are you sure you want to delete {{ bank_account.name }}?</p>
+  <form method="POST">
     {% csrf_token %}
-    <button type="submit">Delete Account</button>
-</form>
-<a href="{% url 'bank-account-detail' bank_account.id %}">Cancel</a>
+    <button type="submit">Confirm Delete</button>
+  </form>
+  <p><a href="{% url 'bank-account-detail' bank_account.id %}">Back to bank account</a></p>
 {% endblock %}

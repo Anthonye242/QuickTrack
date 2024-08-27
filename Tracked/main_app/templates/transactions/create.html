@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Create Expense</h1>
+<h1>Create Transaction</h1>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Create Expense</button>
+    <button type="submit">Create Transaction</button>
 </form>
 
 <a href="{% url 'bank-account-detail' account_id=request.GET.bank_account_id %}">Back to Bank Account</a>

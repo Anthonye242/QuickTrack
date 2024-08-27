@@ -1,0 +1,56 @@
+{% extends 'home.html' %}
+
+{% block content %}
+<h2>{{ bank_account.name }}</h2>
+<p>Balance: ${{ bank_account.balance }}</p>
+
+<h3>Transactions</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ transaction_form.as_p }}
+    <button type="submit" class="btn btn-primary">Add Transaction</button>
+</form>
+
+<ul class="list-group mt-3">
+    {% for transaction in transactions %}
+    <li class="list-group-item">
+        {{ transaction.date }} - {{ transaction.description }} - ${{ transaction.amount }}
+        <a href="{% url 'transaction-update' transaction.id %}" class="btn btn-sm btn-secondary">Edit</a>
+        <a href="{% url 'transaction-delete' transaction.id %}" class="btn btn-sm btn-danger">Delete</a>
+    </li>
+    {% empty %}
+    <li class="list-group-item">No transactions found.</li>
+    {% endfor %}
+</ul>
+
+<h3 class="mt-4">Budgets and Expenses</h3>
+<a href="{% url 'budget-create' %}?account_id={{ bank_account.id }}" class="btn btn-primary mb-3">Create New Budget</a>
+
+{% for budget in budgets %}
+    <div class="mb-3">
+        <h4>{{ budget.name }} - ${{ budget.amount }}</h4>
+        <p>{{ budget.start_date }} to {{ budget.end_date }}</p>
+        <a href="{% url 'expense-create' %}?budget_id={{ budget.id }}" class="btn btn-primary mb-3">Add Expense</a>
+        
+        <h5>Expenses</h5>
+        <ul class="list-group">
+            {% for expense in budget.expenses.all %}
+            <li class="list-group-item">
+                {{ expense.date }} - {{ expense.description }} - ${{ expense.amount }}
+                <a href="{% url 'expense-update' expense.id %}" class="btn btn-sm btn-secondary">Edit</a>
+                <a href="{% url 'expense-delete' expense.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </li>
+            {% empty %}
+            <li class="list-group-item">No expenses found for this budget.</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'budget-update' budget.id %}" class="btn btn-sm btn-secondary">Edit Budget</a>
+        <a href="{% url 'budget-delete' budget.id %}" class="btn btn-sm btn-danger">Delete Budget</a>
+    </div>
+{% empty %}
+    <p>No budgets found for this account.</p>
+{% endfor %}
+
+<a href="{% url 'bank-account-update' bank_account.id %}" class="btn btn-secondary mt-3">Edit Account</a>
+<a href="{% url 'bank-account-delete' bank_account.id %}" class="btn btn-danger mt-3">Delete Account</a>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'home.html' %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<section>
+    <h1>Sign Up</h1>
+    <form action="{% url 'signup' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Sign Up</button>
+    </form>
+    {% if error_message %}
+        <p>{{ error_message }}</p>
+    {% endif %}
+</section>
+{% endblock %}

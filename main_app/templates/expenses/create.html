@@ -1,0 +1,10 @@
+{% extends 'home.html' %}
+
+{% block content %}
+<h2>Create Expense</h2>
+<form method="post" action="{% url 'expense-create' %}?account_id={{ account_id }}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+{% endblock %}

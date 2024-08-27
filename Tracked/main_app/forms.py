@@ -1,5 +1,5 @@
 from django import forms
-from .models import BankAccount, Transaction, Budget, Expense, BudgetTransaction
+from .models import BankAccount, Transaction, Budget, Expense
 
 class BankAccountForm(forms.ModelForm):
     class Meta:
@@ -9,7 +9,7 @@ class BankAccountForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['date', 'description', 'amount']
+        fields = ['date', 'description', 'amount', 'transaction_type', 'budget']
 
 class BudgetForm(forms.ModelForm):
     class Meta:
@@ -19,10 +19,4 @@ class BudgetForm(forms.ModelForm):
 class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
-        fields = ['amount', 'description', 'date'] 
-
-
-class BudgetTransactionForm(forms.ModelForm):
-    class Meta:
-        model = BudgetTransaction
-        fields = ['budget', 'transaction', 'amount']
+        fields = ['amount', 'description', 'date', 'budget']

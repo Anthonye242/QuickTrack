@@ -1,13 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}Update Transaction{% endblock %}
-
 {% block content %}
-<h1>Update Transaction</h1>
-<form method="POST">
+<h2>Update Transaction</h2>
+<form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Update Transaction</button>
+    <button type="submit" class="btn btn-primary">Update</button>
 </form>
-<a href="{% url 'bank-account-detail' transaction.account.id %}">Back to Account</a>
 {% endblock %}

@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Your Bank Accounts</h1>
-  <a href="{% url 'bank-account-create' %}">Add New Bank Account</a>
-  <ul>
+<h2>Bank Accounts</h2>
+<a href="{% url 'bank-account-create' %}" class="btn btn-primary mb-3">Add New Account</a>
+<ul class="list-group">
     {% for account in bank_accounts %}
-      <li>
-        <a href="{% url 'bank-account-detail' account.id %}">{{ account.name }} - Balance: {{ account.balance }}</a>
-      </li>
+    <li class="list-group-item">
+        <a href="{% url 'bank-account-detail' account.id %}">{{ account.name }} - ${{ account.balance }}</a>
+    </li>
+    {% empty %}
+    <li class="list-group-item">No bank accounts found.</li>
     {% endfor %}
-  </ul>
+</ul>
 {% endblock %}

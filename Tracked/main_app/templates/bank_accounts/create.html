@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Add New Bank Account</h1>
-  <form method="POST">
+<h2>Create Bank Account</h2>
+<form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Save</button>
-  </form>
-  <p><a href="{% url 'bank-account-index' %}">Back to all accounts</a></p>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
 {% endblock %}

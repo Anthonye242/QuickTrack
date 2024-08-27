@@ -19,7 +19,9 @@ def bank_account_detail(request, account_id):
     bank_account = BankAccount.objects.filter(id=account_id, user=request.user).first()
     if bank_account:
         transactions = Transaction.objects.filter(account=bank_account)
-        budgets = Budget.objects.filter(user=request.user)  
+        budgets = Budget.objects.filter(bank_account=bank_account)
+        expenses = Expense.objects.filter(budget__bank_account=bank_account).order_by('date')
+        
         if request.method == 'POST':
             transaction_form = TransactionForm(request.POST)
             if transaction_form.is_valid():
@@ -35,8 +37,9 @@ def bank_account_detail(request, account_id):
             'transaction_form': transaction_form,
             'transactions': transactions,
             'budgets': budgets,
+            'expenses': expenses,
         })
-    
+    return redirect('bank-account-index')
 
 @login_required
 def bank_account_create(request):
@@ -137,6 +140,13 @@ def budget_index(request):
     return render(request, 'budgets/index.html', {'budgets': budgets})
 
 @login_required
+def budget_detail(request, budget_id):
+    budget = Budget.objects.filter(id=budget_id, user=request.user).first()
+    if budget:
+        return render(request, 'budgets/detail.html', {'budget': budget})
+    return redirect('budget-index')
+
+@login_required
 def budget_update(request, budget_id):
     budget = Budget.objects.filter(id=budget_id, user=request.user).first()
     if budget:
@@ -147,7 +157,10 @@ def budget_update(request, budget_id):
                 return redirect('bank-account-detail', account_id=budget.bank_account.id)
         else:
             form = BudgetForm(instance=budget)
-        return render(request, 'budgets/update.html', {'form': form})
+        return render(request, 'budgets/update.html', {
+            'form': form,
+            'account_id': budget.bank_account.id  
+        })
     return redirect('budget-index')
 
 @login_required
@@ -172,8 +185,11 @@ def expense_detail(request, expense_id):
     return render(request, 'expenses/detail.html', {'expense': expense})
 
 @login_required
+@login_required
 def expense_create(request):
     account_id = request.GET.get('account_id')
+    budget_id = request.GET.get('budget_id')
+    
     if not account_id:
         return redirect('bank-account-index')
 
@@ -181,13 +197,22 @@ def expense_create(request):
         form = ExpenseForm(request.POST)
         if form.is_valid():
             new_expense = form.save(commit=False)
-            new_expense.account_id = account_id
-            new_expense.user = request.user
+            new_expense.budget = Budget.objects.filter(id=budget_id, bank_account_id=account_id, user=request.user).first()
             new_expense.save()
+            messages.success(request, "Expense created successfully.")
             return redirect('bank-account-detail', account_id=account_id)
     else:
         form = ExpenseForm()
-    return render(request, 'expenses/create.html', {'form': form, 'account_id': account_id})
+        if budget_id:
+            form.fields['budget'].initial = budget_id
+
+    context = {
+        'form': form, 
+        'account_id': account_id, 
+        'budget_id': budget_id
+    }
+    return render(request, 'expenses/create.html', context)
+
 
 @login_required
 def expense_update(request, expense_id):

@@ -2,9 +2,11 @@
 
 {% block content %}
 <h2>Create Expense</h2>
-<form method="post" action="{% url 'expense-create' %}?account_id={{ account_id }}">
+<form method="post" action="{% url 'expense-create' %}">
     {% csrf_token %}
     {{ form.as_p }}
+    <input type="hidden" name="budget_id" value="{{ request.GET.budget_id }}">
+    <input type="hidden" name="account_id" value="{{ request.GET.account_id }}">
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
 {% endblock %}

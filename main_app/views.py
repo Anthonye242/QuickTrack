@@ -176,15 +176,17 @@ def budget_delete(request, budget_id):
 
 @login_required
 def expense_index(request):
-    expenses = Expense.objects.filter(user=request.user).order_by('-date')
+    expenses = Expense.objects.filter(budget__bank_account__user=request.user).order_by('-date')
     return render(request, 'expenses/index.html', {'expenses': expenses})
 
 @login_required
 def expense_detail(request, expense_id):
-    expense = Expense.objects.filter(id=expense_id, user=request.user).first()
-    return render(request, 'expenses/detail.html', {'expense': expense})
+    expense = Expense.objects.filter(id=expense_id, budget__bank_account__user=request.user).first()
+    if expense:
+        return render(request, 'expenses/detail.html', {'expense': expense})
+    else:
+        return redirect('expense-index')
 
-@login_required
 @login_required
 def expense_create(request):
     account_id = request.GET.get('account_id')
@@ -198,9 +200,10 @@ def expense_create(request):
         if form.is_valid():
             new_expense = form.save(commit=False)
             new_expense.budget = Budget.objects.filter(id=budget_id, bank_account_id=account_id, user=request.user).first()
-            new_expense.save()
-            messages.success(request, "Expense created successfully.")
-            return redirect('bank-account-detail', account_id=account_id)
+            print(new_expense)
+            # new_expense.save()
+            # messages.success(request, "Expense created successfully.")
+            # return redirect('bank-account-detail', account_id=account_id)
     else:
         form = ExpenseForm()
         if budget_id:

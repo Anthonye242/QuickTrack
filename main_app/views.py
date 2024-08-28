@@ -15,13 +15,17 @@ def bank_account_index(request):
     bank_accounts = BankAccount.objects.filter(user=request.user)
     return render(request, 'bank_accounts/index.html', {'bank_accounts': bank_accounts})
 
+@login_required
 def bank_account_detail(request, account_id):
     bank_account = BankAccount.objects.filter(id=account_id, user=request.user).first()
     if bank_account:
         transactions = Transaction.objects.filter(account=bank_account)
         budgets = Budget.objects.filter(bank_account=bank_account)
-        expenses = Expense.objects.filter(budget__bank_account=bank_account).order_by('date')
-        
+        expenses = Expense.objects.filter(
+            Q(budget__bank_account=bank_account) | 
+            Q(budget__isnull=True, budget__bank_account__user=request.user)
+        ).order_by('date')
+
         if request.method == 'POST':
             transaction_form = TransactionForm(request.POST)
             if transaction_form.is_valid():
@@ -191,7 +195,7 @@ def expense_detail(request, expense_id):
 def expense_create(request):
     account_id = request.GET.get('account_id')
     budget_id = request.GET.get('budget_id')
-    
+
     if not account_id:
         return redirect('bank-account-index')
 
@@ -200,10 +204,8 @@ def expense_create(request):
         if form.is_valid():
             new_expense = form.save(commit=False)
             new_expense.budget = Budget.objects.filter(id=budget_id, bank_account_id=account_id, user=request.user).first()
-            print(new_expense)
-            # new_expense.save()
-            # messages.success(request, "Expense created successfully.")
-            # return redirect('bank-account-detail', account_id=account_id)
+            new_expense.save()
+            return redirect('bank-account-detail', account_id=account_id)
     else:
         form = ExpenseForm()
         if budget_id:
@@ -214,9 +216,7 @@ def expense_create(request):
         'account_id': account_id, 
         'budget_id': budget_id
     }
-    return render(request, 'expenses/create.html', context)
-
-
+    
 @login_required
 def expense_update(request, expense_id):
     expense = Expense.objects.filter(id=expense_id, user=request.user).first()

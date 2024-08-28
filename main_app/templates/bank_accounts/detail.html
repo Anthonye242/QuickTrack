@@ -32,7 +32,7 @@
         <h4>{{ budget.name }} - ${{ budget.amount }}</h4>
         <p>{{ budget.start_date }} to {{ budget.end_date }}</p>
         
-        <h5>Budget Expenses</h5>
+        <h5>Budget Expenses (Debug: {{ budget.expenses.all|length }})</h5>
         <ul class="list-group">
             {% for expense in budget.expenses.all %}
             <li class="list-group-item">
@@ -51,7 +51,7 @@
     <p>No budgets found for this account.</p>
 {% endfor %}
 
-<h3 class="mt-4">All Expenses</h3>
+<h3 class="mt-4">All Expenses (Debug: {{ expenses|length }})</h3>
 <ul class="list-group">
     {% for expense in expenses %}
     <li class="list-group-item">

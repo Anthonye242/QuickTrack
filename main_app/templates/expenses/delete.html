@@ -1,10 +1,11 @@
 {% extends 'home.html' %}
 
 {% block content %}
-<h2>Confirm Delete Expense</h2>
+<h2>Delete Expense</h2>
+<p>Are you sure you want to delete the expense "{{ expense.description }}"?</p>
 <form method="post">
     {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Delete</button>
+    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+    <a href="{% url 'expense-detail' expense.id %}" class="btn btn-secondary">Cancel</a>
 </form>
-<a href="{% url 'bank-account-detail' expense.bank_account.id %}" class="btn btn-secondary mt-3">Cancel</a>
 {% endblock %}

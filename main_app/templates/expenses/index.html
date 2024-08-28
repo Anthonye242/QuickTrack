@@ -3,21 +3,25 @@
 {% block title %}Expenses{% endblock %}
 
 {% block content %}
-<h1>Your Expenses</h1>
-<a href="{% url 'expense-create' %}" class="btn btn-primary">Add New Expense</a>
+<div class="container">
+    <h1>Your Expenses</h1>
+    <a href="{% url 'expense-create' %}" class="btn btn-primary mb-3">Add New Expense</a>
 
-{% if expenses %}
-    <ul>
-        {% for expense in expenses %}
-            <li>
-                {{ expense.date }}: {{ expense.description }} - {{ expense.amount }}
-                <a href="{% url 'expense-detail' expense.id %}" class="btn btn-info">View</a>
-                <a href="{% url 'expense-update' expense.id %}" class="btn btn-warning">Edit</a>
-                <a href="{% url 'expense-delete' expense.id %}" class="btn btn-danger">Delete</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No expenses found.</p>
-{% endif %}
+    {% if expenses %}
+        <ul class="list-group">
+            {% for expense in expenses %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ expense.date }}: {{ expense.description }} - ${{ expense.amount }}
+                    <div>
+                        <a href="{% url 'expense-detail' expense.id %}" class="btn btn-info btn-sm">View</a>
+                        <a href="{% url 'expense-update' expense.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'expense-delete' expense.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No expenses found.</p>
+    {% endif %}
+</div>
 {% endblock %}

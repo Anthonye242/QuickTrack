@@ -3,14 +3,18 @@
 {% block title %}Budgets{% endblock %}
 
 {% block content %}
-<h1>Your Budgets</h1>
-<a href="{% url 'budget-create' %}">Add New Budget</a>
-<ul>
-    {% for budget in budgets %}
-        <li>
+<div class="container">
+    <h1>Your Budgets</h1>
+    <a href="{% url 'budget-create' %}" class="btn btn-primary mb-3">Add New Budget</a>
+    <ul class="list-group">
+        {% for budget in budgets %}
+        <li class="list-group-item">
             <a href="{% url 'budget-detail' budget.id %}">{{ budget.name }}</a> 
             ({{ budget.start_date }} - {{ budget.end_date }})
         </li>
-    {% endfor %}
-</ul>
+        {% empty %}
+        <li class="list-group-item">No budgets found.</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}

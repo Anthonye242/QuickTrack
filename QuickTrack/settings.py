@@ -135,8 +135,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-LOGIN_URL = 'home'
-LOGIN_REDIRECT_URL = 'bank-account-index'
+LOGIN_URL = 'login'  
+
+LOGIN_REDIRECT_URL = 'bank-account-index' 
+
+LOGOUT_REDIRECT_URL = '/' 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

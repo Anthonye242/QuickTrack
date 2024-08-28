@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
-from django.contrib.auth.forms import UserCreationForm
-from django.views import View
 from django.contrib.auth.views import LoginView
+from django.contrib.auth import login
 from .models import BankAccount, Transaction, Budget, Expense
 from .forms import BankAccountForm, TransactionForm, BudgetForm, ExpenseForm
+from django.contrib.auth.forms import UserCreationForm
 
 class Home(LoginView):
     template_name = 'home.html'
@@ -21,24 +20,10 @@ def bank_account_detail(request, account_id):
     if bank_account:
         transactions = Transaction.objects.filter(account=bank_account)
         budgets = Budget.objects.filter(bank_account=bank_account)
-        expenses = Expense.objects.filter(
-            Q(budget__bank_account=bank_account) | 
-            Q(budget__isnull=True, budget__bank_account__user=request.user)
-        ).order_by('date')
-
-        if request.method == 'POST':
-            transaction_form = TransactionForm(request.POST)
-            if transaction_form.is_valid():
-                new_transaction = transaction_form.save(commit=False)
-                new_transaction.account = bank_account
-                new_transaction.save()
-                return redirect('bank-account-detail', account_id=account_id)
-        else:
-            transaction_form = TransactionForm()
+        expenses = Expense.objects.filter(bank_account=bank_account).order_by('-date')
 
         return render(request, 'bank_accounts/detail.html', {
             'bank_account': bank_account,
-            'transaction_form': transaction_form,
             'transactions': transactions,
             'budgets': budgets,
             'expenses': expenses,
@@ -84,16 +69,24 @@ def bank_account_delete(request, account_id):
 
 @login_required
 def transaction_create(request):
-    if request.method == 'POST':
-        form = TransactionForm(request.POST)
-        if form.is_valid():
-            new_transaction = form.save(commit=False)
-            new_transaction.account_id = request.POST.get('account')
-            new_transaction.save()
-            return redirect('bank-account-detail', account_id=new_transaction.account.id)
-    else:
-        form = TransactionForm()
-    return render(request, 'transactions/create.html', {'form': form})
+    account_id = request.GET.get('account_id')
+    if not account_id:
+        return redirect('bank-account-index') 
+    bank_account = BankAccount.objects.filter(id=account_id, user=request.user).first()
+
+    if bank_account:
+        if request.method == 'POST':
+            form = TransactionForm(request.POST)
+            if form.is_valid():
+                new_transaction = form.save(commit=False)
+                new_transaction.account = bank_account
+                new_transaction.user = request.user
+                new_transaction.save()
+                return redirect('bank-account-detail', account_id=account_id)
+        else:
+            form = TransactionForm()
+        return render(request, 'transactions/create.html', {'form': form, 'bank_account': bank_account})
+    return redirect('bank-account-index')
 
 @login_required
 def transaction_update(request, transaction_id):
@@ -107,7 +100,7 @@ def transaction_update(request, transaction_id):
         else:
             form = TransactionForm(instance=transaction)
         return render(request, 'transactions/update.html', {'form': form, 'transaction': transaction})
-    return redirect('bank-account-detail', account_id=transaction.account.id)
+    return redirect('bank-account-index')
 
 @login_required
 def transaction_delete(request, transaction_id):
@@ -118,7 +111,7 @@ def transaction_delete(request, transaction_id):
             transaction.delete()
             return redirect('bank-account-detail', account_id=account_id)
         return render(request, 'transactions/delete.html', {'transaction': transaction})
-    return redirect('bank-account-detail', account_id=transaction.account.id)
+    return redirect('bank-account-index')
 
 @login_required
 def budget_create(request):
@@ -161,8 +154,10 @@ def budget_update(request, budget_id):
                 return redirect('bank-account-detail', account_id=budget.bank_account.id)
         else:
             form = BudgetForm(instance=budget)
+        
         return render(request, 'budgets/update.html', {
             'form': form,
+            'budget': budget,
             'account_id': budget.bank_account.id  
         })
     return redirect('budget-index')
@@ -172,9 +167,9 @@ def budget_delete(request, budget_id):
     budget = Budget.objects.filter(id=budget_id, user=request.user).first()
     if budget:
         if request.method == 'POST':
-            bank_account_id = budget.bank_account.id
+            account_id = budget.bank_account.id
             budget.delete()
-            return redirect('bank-account-detail', account_id=bank_account_id)
+            return redirect('bank-account-detail', account_id=account_id)
         return render(request, 'budgets/delete.html', {'budget': budget})
     return redirect('budget-index')
 
@@ -188,56 +183,58 @@ def expense_detail(request, expense_id):
     expense = Expense.objects.filter(id=expense_id, budget__bank_account__user=request.user).first()
     if expense:
         return render(request, 'expenses/detail.html', {'expense': expense})
-    else:
-        return redirect('expense-index')
+    return redirect('expense-index')
 
 @login_required
 def expense_create(request):
     account_id = request.GET.get('account_id')
-    budget_id = request.GET.get('budget_id')
-
-    if not account_id:
+    bank_account = BankAccount.objects.filter(id=account_id, user=request.user).first()
+    
+    if bank_account:
+        if request.method == 'POST':
+            form = ExpenseForm(request.POST)
+            if form.is_valid():
+                new_expense = form.save(commit=False)
+                new_expense.bank_account = bank_account
+                new_expense.save()
+                return redirect('bank-account-detail', account_id=bank_account.id)
+        else:
+            form = ExpenseForm()
+        
+        return render(request, 'expenses/create.html', {
+            'form': form,
+            'bank_account': bank_account
+        })
+    else:
         return redirect('bank-account-index')
 
-    if request.method == 'POST':
-        form = ExpenseForm(request.POST)
-        if form.is_valid():
-            new_expense = form.save(commit=False)
-            new_expense.budget = Budget.objects.filter(id=budget_id, bank_account_id=account_id, user=request.user).first()
-            new_expense.save()
-            return redirect('bank-account-detail', account_id=account_id)
-    else:
-        form = ExpenseForm()
-        if budget_id:
-            form.fields['budget'].initial = budget_id
-
-    context = {
-        'form': form, 
-        'account_id': account_id, 
-        'budget_id': budget_id
-    }
-    
 @login_required
 def expense_update(request, expense_id):
-    expense = Expense.objects.filter(id=expense_id, user=request.user).first()
+    expense = Expense.objects.filter(id=expense_id, bank_account__user=request.user).first()
     if expense:
         if request.method == 'POST':
             form = ExpenseForm(request.POST, instance=expense)
             if form.is_valid():
                 form.save()
-                return redirect('expense-detail', expense_id=expense.id)
+                # Redirect to the bank account detail page
+                return redirect('bank-account-detail', account_id=expense.bank_account.id)
         else:
             form = ExpenseForm(instance=expense)
-        return render(request, 'expenses/update.html', {'form': form, 'expense': expense})
-    return redirect('expense-detail', expense_id=expense_id)
+        
+        return render(request, 'expenses/update.html', {
+            'form': form,
+            'expense': expense
+        })
+    return redirect('expense-index')
 
 @login_required
 def expense_delete(request, expense_id):
-    expense = Expense.objects.filter(id=expense_id, user=request.user).first()
+    expense = Expense.objects.filter(id=expense_id, bank_account__user=request.user).first()
     if expense:
         if request.method == 'POST':
+            account_id = expense.bank_account.id
             expense.delete()
-            return redirect('expense-index')
+            return redirect('bank-account-detail', account_id=account_id)
         return render(request, 'expenses/delete.html', {'expense': expense})
     return redirect('expense-index')
 

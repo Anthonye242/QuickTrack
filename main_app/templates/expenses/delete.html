@@ -6,5 +6,5 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Delete</button>
 </form>
-<a href="{% url 'budget-detail' object.budget.id %}" class="btn btn-secondary mt-3">Cancel</a>
+<a href="{% url 'bank-account-detail' expense.bank_account.id %}" class="btn btn-secondary mt-3">Cancel</a>
 {% endblock %}

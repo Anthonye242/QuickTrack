@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.urls import reverse  
-from django.contrib.auth.models import User
+from django.urls import reverse
 
 class BankAccount(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -13,7 +12,6 @@ class BankAccount(models.Model):
 
     def get_absolute_url(self):
         return reverse('bank-account-detail', kwargs={'account_id': self.id})
-
 
 class Budget(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -29,10 +27,8 @@ class Budget(models.Model):
     def get_absolute_url(self):
         return reverse('budget-detail', kwargs={'pk': self.id})
 
-
 class Transaction(models.Model):
     account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='transactions')
-    budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')
     date = models.DateField()
     description = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -44,14 +40,12 @@ class Transaction(models.Model):
     def get_absolute_url(self):
         return reverse('transaction-detail', kwargs={'pk': self.id})
 
-
 class Expense(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    budget = models.ForeignKey(Budget, on_delete=models.CASCADE)
+    description = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    description = models.CharField(max_length=255)
     date = models.DateField()
- 
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, null=True, related_name='expenses')
+    budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True, blank=True, related_name='expenses')
 
     def __str__(self):
         return f'{self.description} - {self.amount}'

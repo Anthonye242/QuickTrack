@@ -1,11 +1,13 @@
 {% extends 'home.html' %}
 
 {% block content %}
-<h2>Update Transaction</h2>
-<form method="post">
+<h2>Create Transaction</h2>
+
+<form method="post" action="{% url 'transaction-create' %}?account_id={{ bank_account.id }}">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Update</button>
+    <button type="submit">Create</button>
 </form>
-<a href="{% url 'bank-account-detail' object.account.id %}" class="btn btn-secondary mt-3">Cancel</a>
+
+<a href="{% url 'bank-account-detail' account_id=bank_account.id %}">Cancel</a>
 {% endblock %}

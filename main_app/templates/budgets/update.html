@@ -1,14 +1,13 @@
 {% extends 'home.html' %}
 
+{% block title %}Update Budget{% endblock %}
+
 {% block content %}
 <h1>Update Budget</h1>
-
-<form method="post">
+<form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Update Budget</button>
 </form>
-
-<a href="{% url 'bank-account-detail' account_id=account_id %}">Back to Bank Account</a>
-
+<a href="{% url 'bank-account-detail' account_id %}">Back to Bank Account</a>
 {% endblock %}

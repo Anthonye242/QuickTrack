@@ -4,12 +4,9 @@
 <h2>{{ bank_account.name }}</h2>
 <p>Balance: ${{ bank_account.balance }}</p>
 
+<!-- Transactions Section -->
 <h3>Transactions</h3>
-<form method="post">
-    {% csrf_token %}
-    {{ transaction_form.as_p }}
-    <button type="submit" class="btn btn-primary">Add Transaction</button>
-</form>
+<a href="{% url 'transaction-create' %}?account_id={{ bank_account.id }}">Add Transaction</a>
 
 <ul class="list-group mt-3">
     {% for transaction in transactions %}
@@ -23,27 +20,14 @@
     {% endfor %}
 </ul>
 
-<h3 class="mt-4">Budgets and Expenses</h3>
+<!-- Budgets Section -->
+<h3 class="mt-4">Budgets</h3>
 <a href="{% url 'budget-create' %}?account_id={{ bank_account.id }}" class="btn btn-primary mb-3">Create New Budget</a>
-<a href="{% url 'expense-create' %}?account_id={{ bank_account.id }}" class="btn btn-primary mb-3">Add Expense</a>
 
 {% for budget in budgets %}
     <div class="mb-3">
         <h4>{{ budget.name }} - ${{ budget.amount }}</h4>
         <p>{{ budget.start_date }} to {{ budget.end_date }}</p>
-        
-        <h5>Budget Expenses (Debug: {{ budget.expenses.all|length }})</h5>
-        <ul class="list-group">
-            {% for expense in budget.expenses.all %}
-            <li class="list-group-item">
-                {{ expense.date }} - {{ expense.description }} - ${{ expense.amount }}
-                <a href="{% url 'expense-update' expense.id %}" class="btn btn-sm btn-secondary">Edit</a>
-                <a href="{% url 'expense-delete' expense.id %}" class="btn btn-sm btn-danger">Delete</a>
-            </li>
-            {% empty %}
-            <li class="list-group-item">No expenses found for this budget.</li>
-            {% endfor %}
-        </ul>
         <a href="{% url 'budget-update' budget.id %}" class="btn btn-sm btn-secondary">Edit Budget</a>
         <a href="{% url 'budget-delete' budget.id %}" class="btn btn-sm btn-danger">Delete Budget</a>
     </div>
@@ -51,8 +35,11 @@
     <p>No budgets found for this account.</p>
 {% endfor %}
 
-<h3 class="mt-4">All Expenses (Debug: {{ expenses|length }})</h3>
-<ul class="list-group">
+<!-- Expenses Section -->
+<h3 class="mt-4">Expenses</h3>
+<a href="{% url 'expense-create' %}?account_id={{ bank_account.id }}" class="btn btn-primary mb-3">Add Expense</a>
+
+<ul class="list-group mt-3">
     {% for expense in expenses %}
     <li class="list-group-item">
         {{ expense.date }} - {{ expense.description }} - ${{ expense.amount }}

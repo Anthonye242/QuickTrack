@@ -1,12 +1,13 @@
 {% extends 'home.html' %}
 
 {% block content %}
-<h2>Create Expense</h2>
-<form method="post" action="{% url 'expense-create' %}">
+<h2>Add Expense to {{ bank_account.name }}</h2>
+
+<form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="hidden" name="budget_id" value="{{ request.GET.budget_id }}">
-    <input type="hidden" name="account_id" value="{{ request.GET.account_id }}">
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" class="btn btn-primary">Add Expense</button>
 </form>
+
+<a href="{% url 'bank-account-detail' bank_account.id %}" class="btn btn-secondary mt-3">Back to Bank Account</a>
 {% endblock %}

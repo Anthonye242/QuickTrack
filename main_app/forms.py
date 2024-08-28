@@ -9,7 +9,7 @@ class BankAccountForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['date', 'description', 'amount', 'transaction_type', 'budget']
+        fields = ['date', 'description', 'amount', 'transaction_type']
 
 class BudgetForm(forms.ModelForm):
     class Meta:
